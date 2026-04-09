@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aci211-v2';
+const CACHE_NAME = 'aci211-v.{{VERSION}}';
 const ASSETS = [
   './',
   './index.html',
