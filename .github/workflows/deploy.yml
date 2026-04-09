@@ -1,0 +1,43 @@
+name: Deploy PWA with Auto Versioning
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto Update Service Worker Version
+        run: |
+          # 將 sw.js 中的 {{VERSION}} 替換為 GitHub 的執行編號 (例如 7, 8, 9...)
+          sed -i "s/{{VERSION}}/${{ github.run_number }}/g" sw.js
+          echo "Service Worker version updated to build ${{ github.run_number }}"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
